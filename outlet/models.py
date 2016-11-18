@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class UserProfile(User):
+    userprofile_address = models.TextField()
+
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
@@ -11,36 +15,20 @@ class Category(models.Model):
         verbose_name = 'Category'
 
     def __str__(self):
-        return self.item_name
+        return self.name
 
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
 
     def __str__(self):
-        return self.item_name
+        return self.name
 
 
-class Item(models.Model):
-    item_name = models.CharField(max_length=255)
-    item_slug = models.SlugField(max_length=255)
-    item_description = models.TextField()
-    item_category = models.ForeignKey(Category)
-    item_tags = models.ForeignKey(Tag)
-    date_post = models.DateTimeField(auto_now_add=True)
-    item_price = models.FloatField()
-    item_cartElement = models.ForeignKey(CartElement)
-    item_weight = models.FloatField()
-    item_height = models.FloatField()
-    item_width = models.FloatField()
-    item_deep = models.FloatField()
-    item_brand=models.CharField(max_length=255)
-    item_article=models.CharField(max_length=255)
-    item_picture=models.ImageField()
-
-
-    def __str__(self):
-        return self.item_name
+class CartElement(models.Model):
+    cartElement_userprofile = models.ForeignKey(UserProfile)
+    cartElement_number = models.IntegerField()
 
 
 class Cart(models.Model):
@@ -48,14 +36,27 @@ class Cart(models.Model):
     cart_cartElement = models.ManyToManyField(CartElement)
 
 
-class CartElement(models.Model):
-    cartElement_user = models.ForeignKey(UserProfile)
-    cartElement_number = models.IntegerField()
+class Item(models.Model):
+    item_name = models.CharField(max_length=255)
+    item_slug = models.SlugField(max_length=255)
+    item_description = models.TextField()
+    item_category = models.ForeignKey(Category)
+    item_tags = models.ManyToManyField(Tag)
+    date_post = models.DateTimeField(auto_now_add=True)
+    item_price = models.FloatField()
+    item_cartElement = models.ManyToManyField(CartElement, blank=True)
+    item_weight = models.FloatField(blank=True)
+    item_height = models.FloatField(blank=True)
+    item_width = models.FloatField(blank=True)
+    item_deep = models.FloatField(blank=True)
+    item_brand = models.CharField(max_length=255)
+    item_article = models.CharField(max_length=255)
+    item_picture = models.ImageField(blank=True)
+    item_liked = models.ManyToManyField(UserProfile, blank=True)
 
 
-class UserProfile(User):
-    userprofile_like = models.ForeignKey(Item)
-    userprofile_address_ = models.TextField()
+    def __str__(self):
+        return self.item_name
 
 
 class Order(models.Model):
@@ -76,4 +77,4 @@ class Order(models.Model):
         (Achieved, 'Achieved'),
         (Error_order, 'Error in process'),
     )
-    order_status = models.CharField(choices=ORDER_STATUSES, default=No_payment)
+    order_status = models.CharField(max_length=3,choices=ORDER_STATUSES, default=No_payment)

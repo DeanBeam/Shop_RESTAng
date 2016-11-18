@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class OuletConfig(AppConfig):
-    name = 'oulet'
+    name = 'outlet'
